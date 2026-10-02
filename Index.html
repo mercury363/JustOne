@@ -1,3 +1,603 @@
-<Head>
-    <body> Hello World!</body>  
-</Head>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Just One! Interim Edition</title>
+ 
+<style>
+*,
+*::before,
+*::after{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+}
+ 
+:root{
+  --gold:#FFC107;
+  --green:#43A047;
+  --blue:#1A237E;
+  --danger:#E53935;
+}
+ 
+body{
+  font-family:Georgia, serif;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  padding:20px;
+ 
+  background:
+    radial-gradient(circle at top left,#4CAF50 0%,transparent 35%),
+    radial-gradient(circle at bottom right,#FFC107 0%,transparent 35%),
+    linear-gradient(135deg,#1A237E,#283593,#3949AB);
+ 
+  overflow:hidden;
+}
+ 
+/* Floating Icons */
+ 
+.floating-icon{
+  position:fixed;
+  font-size:4rem;
+  opacity:.08;
+  pointer-events:none;
+}
+ 
+.i1{
+  left:4%;
+  top:10%;
+  animation:float 8s ease-in-out infinite;
+}
+ 
+.i2{
+  right:6%;
+  top:65%;
+  animation:float 10s ease-in-out infinite;
+}
+ 
+.i3{
+  right:15%;
+  top:22%;
+  animation:float 6s ease-in-out infinite;
+}
+ 
+.i4{
+  left:12%;
+  bottom:10%;
+  animation:float 9s ease-in-out infinite;
+}
+ 
+@keyframes float{
+  0%,100%{
+    transform:translateY(0);
+  }
+  50%{
+    transform:translateY(-25px);
+  }
+}
+ 
+#app{
+width:100%;
+max-width:900px;
+display:flex;
+flex-direction:column;
+align-items:center;
+gap:12px;
+z-index:2;
+ 
+zoom:0.75;
+}
+ 
+.game-title{
+  font-size:clamp(3rem,8vw,5rem);
+  color:white;
+  font-weight:900;
+  letter-spacing:6px;
+  text-shadow:0 5px 18px rgba(0,0,0,.4);
+}
+ 
+.directions{
+  max-width:900px;
+  text-align:center;
+  background:rgba(255,255,255,.95);
+  border-radius:16px;
+  padding:15px 20px;
+  line-height:1.6;
+  box-shadow:0 8px 24px rgba(0,0,0,.15);
+}
+ 
+.directions strong{
+  display:block;
+  color:#B8860B;
+  margin-bottom:6px;
+  text-transform:uppercase;
+}
+ 
+.round-badge{
+  background:white;
+  padding:8px 18px;
+  border-radius:999px;
+  font-weight:bold;
+  color:#1A237E;
+  box-shadow:0 5px 12px rgba(0,0,0,.15);
+}
+ 
+.card{
+  width:100%;
+  background:linear-gradient(180deg,#ffffff,#f8f8f8);
+  border:4px solid #FFD54F;
+  border-radius:24px;
+  padding:40px 30px;
+  position:relative;
+  overflow:hidden;
+ 
+  box-shadow:0 15px 40px rgba(0,0,0,.25);
+ 
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+ 
+  animation:cardIn .4s cubic-bezier(.34,1.56,.64,1);
+}
+ 
+.card::before{
+  content:"";
+  position:absolute;
+  inset:0;
+ 
+  background:
+    linear-gradient(
+      135deg,
+      rgba(255,255,255,.4),
+      rgba(255,255,255,0)
+    );
+}
+ 
+@keyframes cardIn{
+  from{
+    opacity:0;
+    transform:translateY(20px) scale(.95);
+  }
+  to{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+}
+ 
+.card-corner{
+  position:absolute;
+  color:#B8860B;
+  font-size:12px;
+}
+ 
+.tl{
+  top:12px;
+  left:15px;
+}
+ 
+.br{
+  bottom:12px;
+  right:15px;
+  transform:rotate(180deg);
+}
+ 
+.card-icon{
+  font-size:4rem;
+  margin-bottom:10px;
+}
+ 
+.card-word{
+  font-size:clamp(4rem,10vw,7rem);
+  font-weight:900;
+  text-transform:uppercase;
+  text-align:center;
+  color:#1A237E;
+ 
+  text-shadow:
+    2px 2px 0 white,
+    5px 5px 10px rgba(0,0,0,.15);
+ 
+  transition:opacity .2s;
+}
+ 
+/* Hidden Word Mode */
+ 
+.hidden-word{
+  color:transparent !important;
+  text-shadow:none !important;
+  position:relative;
+}
+ 
+.hidden-word::before{
+  content:"🔒 SECRET WORD";
+  color:#E53935;
+  font-size:clamp(2rem,5vw,4rem);
+  font-weight:900;
+}
+ 
+.timer-wrap{
+  position:relative;
+  width:140px;
+  height:140px;
+ 
+  filter:
+    drop-shadow(0 0 12px rgba(255,193,7,.7));
+}
+ 
+.timer-svg{
+  transform:rotate(-90deg);
+}
+ 
+.timer-track{
+  fill:none;
+  stroke:rgba(255,255,255,.3);
+  stroke-width:6;
+}
+ 
+.timer-bar{
+  fill:none;
+  stroke:#FFC107;
+  stroke-width:7;
+  stroke-linecap:round;
+  transition:stroke-dashoffset 1s linear;
+}
+ 
+.timer-label{
+  position:absolute;
+  inset:0;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  align-items:center;
+}
+ 
+.timer-time{
+  color:white;
+  font-size:2rem;
+  font-weight:bold;
+}
+ 
+.timer-sub{
+  color:white;
+  font-size:.7rem;
+  letter-spacing:1px;
+  text-transform:uppercase;
+}
+ 
+.timer-danger{
+  animation:pulseDanger .8s infinite;
+}
+ 
+.timer-danger .timer-bar{
+  stroke:var(--danger);
+}
+ 
+.timer-danger .timer-time{
+  color:#ff9d9d;
+}
+ 
+@keyframes pulseDanger{
+  0%,100%{
+    transform:scale(1);
+  }
+  50%{
+    transform:scale(1.06);
+  }
+}
+ 
+.play-controls{
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:12px;
+}
+ 
+.ctrl-btn{
+  padding:14px 24px;
+  border:none;
+  border-radius:999px;
+  font-size:15px;
+  font-weight:bold;
+  cursor:pointer;
+  background:white;
+ 
+  box-shadow:
+    0 6px 18px rgba(0,0,0,.18);
+ 
+  transition:all .2s;
+}
+ 
+.ctrl-btn:hover{
+  transform:translateY(-2px);
+}
+ 
+.ctrl-btn.primary{
+  background:linear-gradient(
+    135deg,
+    #4CAF50,
+    #2E7D32
+  );
+  color:white;
+}
+</style>
+</head>
+ 
+<body>
+ 
+<div class="floating-icon i1">💡</div>
+<div class="floating-icon i2">🎯</div>
+<div class="floating-icon i3">🧠</div>
+<div class="floating-icon i4">🚀</div>
+ 
+<div id="app">
+ 
+  <div class="game-title">
+    JUST ONE! Interim Edition
+  </div>
+ 
+  <div class="directions">
+    <strong>Directions</strong>
+    Write a 1-word clue for the word below.<br>
+    Keep your clue secret until all players have written.<br>
+    Compare clues before the guesser looks.<br>
+    Any duplicate clues must be removed.
+  </div>
+ 
+  <div class="round-badge" id="round-badge">
+    Round 1
+  </div>
+ 
+  <div class="card" id="play-card">
+ 
+    <div class="card-corner tl">Just One</div>
+    <div class="card-corner br">Just One</div>
+ 
+    <div class="card-icon" id="card-icon">💡</div>
+ 
+    <div class="card-word" id="play-word">---</div>
+ 
+  </div>
+ 
+  <div class="timer-wrap" id="timer-wrap">
+ 
+    <svg class="timer-svg" width="140" height="140" viewBox="0 0 140 140">
+ 
+      <circle
+        class="timer-track"
+        cx="70"
+        cy="70"
+        r="58">
+      </circle>
+ 
+      <circle
+        class="timer-bar"
+        id="timer-bar"
+        cx="70"
+        cy="70"
+        r="58">
+      </circle>
+ 
+    </svg>
+ 
+    <div class="timer-label">
+      <div class="timer-time" id="timer-display">3:00</div>
+      <div class="timer-sub">Remaining</div>
+    </div>
+ 
+  </div>
+ 
+  <div class="play-controls">
+ 
+    <button class="ctrl-btn" onclick="resetTimer()">
+      ↺ Reset Timer
+    </button>
+ 
+    <button class="ctrl-btn" onclick="toggleWord()" id="hide-btn">
+      👁 Hide Word
+    </button>
+ 
+    <button class="ctrl-btn" onclick="toggleFullscreen()">
+      ⛶ Full Screen
+    </button>
+ 
+    <button class="ctrl-btn primary" onclick="nextRound()">
+      Next Round →
+    </button>
+ 
+  </div>
+ 
+</div>
+ 
+<script>
+ 
+const WORDS = [
+"Piedmont","Coastal Plain","Appalachian Plateau","Ridge & Valley","Blue Ridge",
+"Savannah","Brunswick","Chattahoochee River","Lake Lanier","Barrier Islands",
+"Savannah River","Hartsfield-Jackson","Profit","Budget","Savings",
+"Investing","Debt","Credit","Interest","Okefenokee Swamp",
+"Executive Branch","Legislative Branch","Judicial Branch","Checks & Balances","Separation of Powers",
+"Bill of Rights","GA's Pledge","General Assembly","Senator","House Representative",
+"Governor","Lieutenant Governor","Voting","Committee System","Local Government",
+"Municipal Charter","County Seat","Special Purpose District","Revenue","Expenditures",
+"Criminal Law","Civil Law","Supreme Court","Justices","Trial Courts",
+"Juvenile","Misdemeanor","Felony","Intake","Release",
+"Detainment","Informal Adjustment","Unruly Behavior","Delinquent Behavior","Formal Hearing","Appeal","7 Deadly Sins","Simpsons",
+"Playstation","Football","Pumpkin Spice","Tik Tok","Wild Kratts",
+"Muppets","Paw Patrol","Teenage Mutant Ninja Turtles","Anime","Mr. Williams",
+"Elmo","Duck Tales"
+];
+ 
+const ICONS = [
+"💡","🎯","🧠","🚀",
+"⭐","🔍","🎲","📝"
+];
+ 
+let usedIndices = new Set();
+let round = 0;
+let timerInterval = null;
+let secondsLeft = 180;
+let wordHidden = false;
+ 
+const TOTAL = 180;
+const RADIUS = 58;
+const CIRC = 2 * Math.PI * RADIUS;
+ 
+const bar = document.getElementById("timer-bar");
+ 
+bar.style.strokeDasharray = CIRC;
+bar.style.strokeDashoffset = 0;
+ 
+function pickWord(){
+ 
+  if(usedIndices.size >= WORDS.length){
+    usedIndices.clear();
+  }
+ 
+  let idx;
+ 
+  do{
+    idx = Math.floor(Math.random()*WORDS.length);
+  } while(usedIndices.has(idx));
+ 
+  usedIndices.add(idx);
+ 
+  return WORDS[idx];
+}
+ 
+function setTimerDisplay(secs){
+ 
+  const m = Math.floor(secs / 60);
+  const s = secs % 60;
+ 
+  document.getElementById("timer-display").textContent =
+    `${m}:${String(s).padStart(2,"0")}`;
+ 
+  bar.style.strokeDashoffset =
+    CIRC * (1 - secs / TOTAL);
+ 
+  const wrap =
+    document.getElementById("timer-wrap");
+ 
+  if(secs <= 30){
+    wrap.classList.add("timer-danger");
+  }else{
+    wrap.classList.remove("timer-danger");
+  }
+}
+ 
+function startTimer(){
+ 
+  clearInterval(timerInterval);
+ 
+  setTimerDisplay(secondsLeft);
+ 
+  timerInterval = setInterval(() => {
+ 
+    if(secondsLeft <= 0){
+      clearInterval(timerInterval);
+      return;
+    }
+ 
+    secondsLeft--;
+    setTimerDisplay(secondsLeft);
+ 
+  },1000);
+}
+ 
+function resetTimer(){
+ 
+  clearInterval(timerInterval);
+ 
+  secondsLeft = 180;
+ 
+  setTimerDisplay(180);
+ 
+  startTimer();
+}
+ 
+function toggleWord(){
+ 
+  const word =
+    document.getElementById("play-word");
+ 
+  const btn =
+    document.getElementById("hide-btn");
+ 
+  wordHidden = !wordHidden;
+ 
+  if(wordHidden){
+ 
+    word.classList.add("hidden-word");
+    btn.innerHTML = "👁 Reveal Word";
+ 
+  }else{
+ 
+    word.classList.remove("hidden-word");
+    btn.innerHTML = "👁 Hide Word";
+ 
+  }
+}
+ 
+function toggleFullscreen(){
+ 
+  if(!document.fullscreenElement){
+ 
+    document.documentElement.requestFullscreen();
+ 
+  }else{
+ 
+    document.exitFullscreen();
+ 
+  }
+}
+ 
+function nextRound(){
+ 
+  round++;
+ 
+  const wordEl =
+    document.getElementById("play-word");
+ 
+  wordEl.classList.remove("hidden-word");
+ 
+  wordHidden = false;
+ 
+  document.getElementById("hide-btn").innerHTML =
+    "👁 Hide Word";
+ 
+  wordEl.style.opacity = "0";
+ 
+  setTimeout(() => {
+ 
+    wordEl.textContent = pickWord();
+ 
+    wordEl.style.opacity = "1";
+ 
+  },150);
+ 
+  document.getElementById("round-badge").textContent =
+    `Round ${round}`;
+ 
+  document.getElementById("card-icon").textContent =
+    ICONS[Math.floor(Math.random() * ICONS.length)];
+ 
+  const card =
+    document.getElementById("play-card");
+ 
+  card.style.animation = "none";
+  void card.offsetWidth;
+  card.style.animation =
+    "cardIn .4s cubic-bezier(.34,1.56,.64,1)";
+ 
+  resetTimer();
+}
+ 
+nextRound();
+ 
+</script>
+ 
+</body>
+</html>
