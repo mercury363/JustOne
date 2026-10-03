@@ -19,6 +19,7 @@
   --green:#43A047;
   --blue:#1A237E;
   --danger:#E53935;
+  --footer-height:140px;
 }
  
 body{
@@ -27,7 +28,7 @@ body{
   display:flex;
   justify-content:center;
   align-items:center;
-  padding:20px;
+  padding:20px 20px calc(var(--footer-height) + 20px);
  
   background:
     radial-gradient(circle at top left,#4CAF50 0%,transparent 35%),
@@ -188,6 +189,8 @@ zoom:0.75;
 }
  
 .card-word{
+  max-width:100%;
+  overflow-wrap:anywhere;
   font-size:clamp(4rem,10vw,7rem);
   font-weight:900;
   text-transform:uppercase;
@@ -207,12 +210,15 @@ zoom:0.75;
   color:transparent !important;
   text-shadow:none !important;
   position:relative;
+  font-size:0;
 }
  
 .hidden-word::before{
   content:"🔒 SECRET WORD";
+  display:block;
+  white-space:nowrap;
   color:#E53935;
-  font-size:clamp(2rem,5vw,4rem);
+  font-size:clamp(1rem,5vw,4rem);
   font-weight:900;
 }
  
@@ -286,6 +292,24 @@ zoom:0.75;
   }
 }
  
+.page-footer{
+  position:fixed;
+  bottom:0;
+  left:0;
+  width:100%;
+  z-index:10;
+  padding:12px 16px calc(8px + env(safe-area-inset-bottom));
+  background:rgba(26,35,126,.96);
+  box-shadow:0 -4px 18px rgba(0,0,0,.15);
+}
+
+.version{
+  margin-top:10px;
+  text-align:center;
+  color:#f5f5f5;
+  font-size:14px;
+}
+
 .play-controls{
   display:flex;
   flex-wrap:wrap;
@@ -310,6 +334,12 @@ zoom:0.75;
  
 .ctrl-btn:hover{
   transform:translateY(-2px);
+}
+
+.ctrl-btn:disabled{
+  opacity:.6;
+  cursor:default;
+  transform:none;
 }
  
 .ctrl-btn.primary{
@@ -387,7 +417,14 @@ zoom:0.75;
  
   </div>
  
-  <div class="play-controls">
+ </div>
+
+ <footer class="page-footer" id="page-footer">
+  <div class="play-controls" role="group" aria-label="Game controls">
+
+    <button class="ctrl-btn" onclick="toggleTimer()" id="pause-btn" aria-pressed="false">
+      ⏸ Pause Timer
+    </button>
  
     <button class="ctrl-btn" onclick="resetTimer()">
       ↺ Reset Timer
@@ -407,9 +444,19 @@ zoom:0.75;
  
   </div>
  
-</div>
+  <div class="version">Version 1.02</div>
+ </footer>
  
 <script>
+
+const footer = document.getElementById("page-footer");
+function reserveFooterSpace(){
+  document.documentElement.style.setProperty(
+    "--footer-height", `${footer.getBoundingClientRect().height}px`
+  );
+}
+new ResizeObserver(reserveFooterSpace).observe(footer);
+reserveFooterSpace();
  
 const WORDS = [
 "Piedmont","Coastal Plain","Appalachian Plateau","Ridge & Valley","Blue Ridge",
@@ -425,7 +472,7 @@ const WORDS = [
 "Detainment","Informal Adjustment","Unruly Behavior","Delinquent Behavior","Formal Hearing","Appeal","7 Deadly Sins","Simpsons",
 "Playstation","Football","Pumpkin Spice","Tik Tok","Wild Kratts",
 "Muppets","Paw Patrol","Teenage Mutant Ninja Turtles","Anime","Mr. Williams",
-"Elmo","Duck Tales"
+"Elmo","Duck Tales", "LOBO"
 ];
  
 const ICONS = [
@@ -489,20 +536,48 @@ function setTimerDisplay(secs){
 function startTimer(){
  
   clearInterval(timerInterval);
+
+  const btn = document.getElementById("pause-btn");
+  btn.textContent = "⏸ Pause Timer";
+  btn.setAttribute("aria-pressed", "false");
+  btn.disabled = secondsLeft <= 0;
  
   setTimerDisplay(secondsLeft);
+
+  if(secondsLeft <= 0){
+    timerInterval = null;
+    return;
+  }
  
   timerInterval = setInterval(() => {
  
-    if(secondsLeft <= 0){
-      clearInterval(timerInterval);
-      return;
-    }
- 
     secondsLeft--;
     setTimerDisplay(secondsLeft);
+
+    if(secondsLeft <= 0){
+      clearInterval(timerInterval);
+      timerInterval = null;
+      btn.disabled = true;
+    }
  
   },1000);
+}
+
+function toggleTimer(){
+
+  if(secondsLeft <= 0){
+    return;
+  }
+
+  if(timerInterval === null){
+    startTimer();
+  }else{
+    clearInterval(timerInterval);
+    timerInterval = null;
+    const btn = document.getElementById("pause-btn");
+    btn.textContent = "▶ Resume Timer";
+    btn.setAttribute("aria-pressed", "true");
+  }
 }
  
 function resetTimer(){
@@ -596,17 +671,5 @@ function nextRound(){
 nextRound();
 </script>
 
-<div style="
-  position: fixed;
-  bottom: 8px;
-  left: 0;
-  width: 100%;
-  text-align: center;
-  color: #f5f5f5;
-  font-size: 14px;
-  z-index: 10;
-">
-  Version 1.01
-</div>
 </body>
 </html>
